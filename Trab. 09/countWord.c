@@ -20,7 +20,6 @@ int main(){
         strcpy(fraseLida,auxEspaco);
         strcat(fraseLida, " ");
         strcat(auxEspaco, " ");
-
     }
 
     setbuf(stdin, 0);
