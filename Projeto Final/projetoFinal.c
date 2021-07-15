@@ -9,7 +9,10 @@ int procuraPosicaoValidaProduto(struct produtos listaDeProdutos[],int quantidade
 void excluirProduto(struct produtos listaDeProdutos[], int quantidadesDeRegistros);
 void editarProduto(struct produtos listaDeProdutos[], int quantidadesDeRegistros);
 void procurarProduto(struct produtos listaDeProdutos[], int quantidadesDeRegistros);
-
+void listaVendas(struct vendas listaDeVendas[], int quantidadesDeRegistros);
+void dataFormatada (int data);
+int procuraPosicaoValidaVenda(struct vendas listaDeVendas[],int quantidadesDeRegistros);
+void cadastrarVenda(struct vendas listaDeVendas[], struct produtos listaDeProdutos[], int quantidadesDeRegistros);
 
 struct produtos{
     char nome[50];
@@ -20,9 +23,9 @@ struct produtos{
 
 struct vendas{
     int codigo;
-    int codigoPedido;
+    int codigoProduto;
     int quantidade;
-    char data[8];
+    int data;
 };
 
 int main(){
@@ -101,11 +104,11 @@ int main(){
                 break;
 
             case 6:
-                printf("");
+                cadastrarVenda(listaDeVendas, listaDeProdutos, quantidadeDeRegistros);
                 break;
 
             case 7:
-                printf("");
+                listaVendas(listaDeVendas,quantidadeDeRegistros);
                 break;
 
             case 8:
@@ -177,6 +180,7 @@ int fsize(FILE *fp){
 }
 
 void listaProdutos(struct produtos listaDeProdutos[], int quantidadeDeRegistros){
+    printf("\n=-=-=-=-=-=-=-=-=-=-=-= LISTA DE PRODUTO =-=-=-=-=-=-=-=-=-=-=\n");
     for(int i = 0; i<quantidadeDeRegistros; i++){
         if(listaDeProdutos[i].codigo != 0){
             printf("\n-=-=-=-=-==-=-=");
@@ -194,6 +198,7 @@ void listaProdutos(struct produtos listaDeProdutos[], int quantidadeDeRegistros)
 }
 
 void cadastrarProduto(struct produtos listaDeProdutos[], int quantidadesDeRegistros){
+    printf("\n=-=-=-=-=-=-=-=-=-=-= CADASTRO DE PRODUTO =-=-=-=-=-=-=-=-=-=-\n");
     int lugarParaSalvar = procuraPosicaoValidaProduto(listaDeProdutos,quantidadesDeRegistros);
     if(lugarParaSalvar != -1){
         listaDeProdutos[lugarParaSalvar].codigo = lugarParaSalvar + 1;
@@ -256,7 +261,7 @@ void editarProduto(struct produtos listaDeProdutos[], int quantidadesDeRegistros
             break;
         if(posicaoExcluida >= 0 && posicaoExcluida < quantidadesDeRegistros){
             if(listaDeProdutos[posicaoExcluida].codigo == 0){
-                printf("\nCódigo de pedido não cadastrado\n");
+                printf("\nCódigo de produto não cadastrado\n");
             }
             else{
                 printf("Nome -> de %s para: ",listaDeProdutos[posicaoExcluida].nome);
@@ -291,7 +296,7 @@ void procurarProduto(struct produtos listaDeProdutos[], int quantidadesDeRegistr
             break;
         if(posicaoDeBusca >= 0 && posicaoDeBusca < quantidadesDeRegistros){
             if(listaDeProdutos[posicaoDeBusca].codigo == 0){
-                printf("\nCódigo de pedido não cadastrado\n");
+                printf("\nCódigo de produto não cadastrado\n");
             }
             else{
                 printf("Código: %d\n",listaDeProdutos[posicaoDeBusca].codigo);
@@ -310,3 +315,93 @@ void procurarProduto(struct produtos listaDeProdutos[], int quantidadesDeRegistr
     }
 }
 
+void listaVendas(struct vendas listaDeVendas[], int quantidadeDeRegistros){
+    printf("\n=-=-=-=-=-=-=-=-=-=-= LISTA DE VENDAS =-=-=-=-=-=-=-=-=-=-=-\n");
+    for(int i = 0; i<quantidadeDeRegistros; i++){
+        if(listaDeVendas[i].codigo != 0){
+            printf("\n-=-=-=-=-==-=-=");
+            printf("\nCódigo: %d",listaDeVendas[i].codigo);
+            printf("\nCódigo produto: %d",listaDeVendas[i].codigoProduto);
+            printf("\nQuantidade: R$%.2f",listaDeVendas[i].quantidade);
+            printf("\nData: ");
+            dataFormatada(listaDeVendas[i].data);
+            printf("\n");
+        }
+    }
+    char aux[10];
+    printf("\nPrecione ENTER para continuar!");
+    setbuf(stdin, 0);
+    fgets(aux,9,stdin);
+    printf("\n");
+}
+
+int procuraPosicaoValidaVenda(struct vendas listaDeVendas[],int quantidadesDeRegistros){
+    for(int i = 0; i < quantidadesDeRegistros; i++){
+        if(listaDeVendas[i].codigo == 0)
+            return i;
+    }
+    return -1;
+}
+
+void cadastrarVenda(struct vendas listaDeVendas[], struct produtos listaDeProdutos[], int quantidadesDeRegistros){
+    printf("\n-=-=-=-=-=-=-=-=-=-=-= CADASTRO DE VENDA =-=-=-=-=-=-=-=-=-=-=\n");
+    int codigoProduto = -1;
+    int quantidadeEstoque = -1;
+    int lugarParaSalvar = procuraPosicaoValidaVenda(listaDeVendas,quantidadesDeRegistros);
+    if(lugarParaSalvar != -1){
+        while (codigoProduto < 0 || codigoProduto > quantidadesDeRegistros){
+            printf("Código do produto que deseja adicionar a venda (0 para cancelar operação): ");
+            scanf("%d",&codigoProduto);
+            if (codigoProduto == 0)
+                return;
+            else if(codigoProduto < 0 || codigoProduto > quantidadesDeRegistros)
+                printf("\nCódigo do produto fora dos limites de 1 e %d\n\n",quantidadesDeRegistros);
+            else if(listaDeProdutos[codigoProduto-1].codigo == 0){
+                printf("\nCódigo do produto não cadastrado\n\n");
+                codigoProduto = -1;
+            }
+        }
+
+        //while (listaDeProdutos)
+        //{
+        //    /* code */
+        //}
+        
+        
+        //listaDeVendas[lugarParaSalvar].codigo = lugarParaSalvar + 1;
+        //printf("O registro terá como código %d!\n", listaDeVendas[lugarParaSalvar].codigo);
+        //printf("Digite o nome do Venda: ");
+        //setbuf(stdin, 0);
+        //fgets(listaDeVendas[lugarParaSalvar].nome,49,stdin);
+        //listaDeVendas[lugarParaSalvar].nome[strcspn(listaDeVendas[lugarParaSalvar].nome, "\n")] = 0;
+        //printf("Digite o preço do Venda: ");
+        //scanf("%f",&listaDeVendas[lugarParaSalvar].preco);
+        //printf("Digite a quantidade em estoque: ");
+        //scanf("%d",&listaDeVendas[lugarParaSalvar].estoque);
+    }
+    else{
+        printf("\n\nNão há espaço para novas vendas!\n\n");
+    }
+}
+
+void dataFormatada (int data){
+
+    int dia = data%100;
+    data -= dia;
+
+    data *= 0.01;
+    int mes = data%100;
+    data -= mes;
+
+    data *= 0.01;
+    int ano = data;
+
+    if(dia < 10 && mes < 10)
+        printf("0%d/0%d/%d",dia,mes,ano);
+    else if(dia < 10)
+        printf("0%d/%d/%d",dia,mes,ano);
+    else if(mes < 10)
+        printf("%d/0%d/%d",dia,mes,ano);
+    else
+        printf("%d/%d/%d",dia,mes,ano);
+}
