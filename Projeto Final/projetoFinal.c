@@ -17,6 +17,7 @@ void excluirVenda(struct vendas listaDeVendas[], struct produtos listaDeProdutos
 void procurarVenda(struct vendas listaDeVendas[], int quantidadeDeRegistros);
 void vendasDeUmMes(struct vendas listaDeVendas[], int quantidadeDeRegistros);
 void listaVendasDeUmProduto(struct vendas listaDeVendas[], int quantidadeDeRegistros);
+void listaProdutosMaisVendidos(struct vendas listaDeVendas[], int quantidadeDeRegistros);
 
 int fsize(FILE *fp);
 void dataFormatada (int data);
@@ -167,6 +168,7 @@ int main(){
                 break;
 
             case 12:
+                listaProdutosMaisVendidos(listaDeVendas,quantidadeDeRegistros);
                 break;
 
             default:
@@ -253,6 +255,16 @@ void cadastrarProduto(struct produtos listaDeProdutos[], int quantidadeDeRegistr
         scanf("%f",&listaDeProdutos[lugarParaSalvar].preco);
         printf("Digite a quantidade em estoque: ");
         scanf("%d",&listaDeProdutos[lugarParaSalvar].estoque);
+
+        if(listaDeProdutos[lugarParaSalvar].codigo < 10)
+            printf("\n=-=-=-=-=- PRODUTO  0%d -=-=-=-=-=",listaDeProdutos[lugarParaSalvar].codigo);
+        else
+            printf("\n=-=-=-=-=- PRODUTO  %d -=-=-=-=-=",listaDeProdutos[lugarParaSalvar].codigo);
+        printf("\nCódigo: %d",listaDeProdutos[lugarParaSalvar].codigo);
+        printf("\nNome: %s",listaDeProdutos[lugarParaSalvar].nome);
+        printf("\nPreço: R$%.2f",listaDeProdutos[lugarParaSalvar].preco);
+        printf("\n%d em estoque",listaDeProdutos[lugarParaSalvar].estoque);
+        printf("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n",listaDeProdutos[lugarParaSalvar].codigo); 
         printf("\nProduto salvo com sucesso!\n");
     }
     else{
@@ -641,6 +653,54 @@ void vendasDeUmMes(struct vendas listaDeVendas[], int quantidadeDeRegistros){
         printf("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n");
 
         precioneEnter();
+}
+
+void listaProdutosMaisVendidos(struct vendas listaDeVendas[], int quantidadeDeRegistros){
+    struct vendas listaDeVendasAux[quantidadeDeRegistros];
+    for(int i = 0; i < quantidadeDeRegistros; i++){
+        listaDeVendasAux[i].codigo = 0;
+        listaDeVendasAux[i].data = 0;
+        listaDeVendasAux[i].quantidade = 0;
+        listaDeVendasAux[i].codigoProduto = 0;
+        listaDeVendasAux[i].precoProduto = 0;
+        strcpy(listaDeVendasAux[i].nomeProduto,"");
+    }
+    for(int i = 0; i < quantidadeDeRegistros; i++){
+        for(int j = 0; j < quantidadeDeRegistros; j++){
+            if(listaDeVendas[i].codigoProduto == listaDeVendasAux[j].codigoProduto){
+                listaDeVendasAux[j].quantidade += listaDeVendas[i].quantidade;
+                continue;
+            }
+            if(j == quantidadeDeRegistros-1)
+                listaDeVendasAux[i] = listaDeVendas[i];
+        }
+    }
+    for(int i = 0; i < quantidadeDeRegistros; i++){
+        for(int j = 0; j < quantidadeDeRegistros; j++){
+            if(listaDeVendasAux[i].quantidade < listaDeVendasAux[j].quantidade){
+                printf("\n%d = %d -> %d\n",i, listaDeVendasAux[i].quantidade,listaDeVendasAux[j].quantidade);
+                struct vendas vendaAux = listaDeVendasAux[i];
+                listaDeVendasAux[i] = listaDeVendasAux[j];
+                listaDeVendasAux[j] = vendaAux;
+                printf("%d = %d -> %d\n",i, listaDeVendasAux[i].quantidade,listaDeVendasAux[j].quantidade);
+
+            }
+        }
+    }
+    for(int i = quantidadeDeRegistros - 1; i >= 0; i--){
+        if(listaDeVendasAux[i].codigoProduto != 0 && listaDeVendasAux[i].codigo != 0){
+            if((quantidadeDeRegistros - i) < 10)
+                printf("\n=-=-=- 0%dº MAIS VENDIDO -=-=-=\n", quantidadeDeRegistros - i);
+            else
+                printf("\n=-=-=- %dº MAIS VENDIDO -=-=-=\n", quantidadeDeRegistros - i);
+            printf("\nCódigo do produto vendido: %d",listaDeVendasAux[i].codigoProduto);
+            printf("\n%d x %s",listaDeVendasAux[i].quantidade,listaDeVendasAux[i].nomeProduto);
+            printf("\nTotal: R$%.2f",listaDeVendasAux[i].precoProduto*listaDeVendasAux[i].quantidade);
+            printf("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n", i);
+
+        }
+    }
+    precioneEnter();
 }
 
 int fsize(FILE *fp){
