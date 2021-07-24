@@ -13,8 +13,10 @@ int main(){
     
     char auxEspaco[500] = " ";
     char auxLinha[500];
-    while (!feof(arq)){
+    while (1){
         fgets(auxLinha, 499, arq);
+        if(feof(arq))
+            break;
         auxLinha[strcspn(auxLinha, "\n")] = 0;
         strcat(auxEspaco, auxLinha);
         strcpy(fraseLida,auxEspaco);

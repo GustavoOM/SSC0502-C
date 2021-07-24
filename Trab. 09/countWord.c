@@ -41,6 +41,7 @@ int countChars(char word[]){
     }
 }
 
+
 int xContemY (char x[], char y[]){
     int contWords = 0;
     for(int i = 0; i <= countChars(x)-countChars(y);i++){

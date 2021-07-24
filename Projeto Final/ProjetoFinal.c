@@ -1,62 +1,68 @@
 #include <stdio.h>
 #include <string.h>
+#include <locale.h>
+#include <stdlib.h>
 
-int opcoes();
-void listaProdutos(struct produtos listaDeProdutos[], int quantidadeDeRegistros);
-void cadastrarProduto(struct produtos listaDeProdutos[], int quantidadeDeRegistros, struct configuracoes *configuracao);
-int procuraPosicaoValidaProduto(struct produtos listaDeProdutos[],int quantidadeDeRegistros);
-int procuraPosicaoPeloCodigoDeProduto(int codigoProduto, struct produtos listaDeProdutos[],int quantidadeDeRegistros);
-void excluirProduto(struct produtos listaDeProdutos[], int quantidadeDeRegistros);
-void editarProduto(struct produtos listaDeProdutos[], int quantidadeDeRegistros);
-void procurarProduto(struct produtos listaDeProdutos[], int quantidadeDeRegistros);
-void listaVendas(struct vendas listaDeVendas[], int quantidadeDeRegistros);
-int procuraPosicaoValidaVenda(struct vendas listaDeVendas[],int quantidadeDeRegistros);
-int procuraPosicaoPeloCodigoDeVenda(int codigoVenda, struct vendas listaDeVendas[], int quantidadeDeRegistros);
-void cadastrarVenda(struct vendas listaDeVendas[], struct produtos listaDeProdutos[], int quantidadeDeRegistros, struct configuracoes *configuracao);
-void excluirVenda(struct vendas listaDeVendas[], struct produtos listaDeProdutos[], int quantidadeDeRegistros);
-void procurarVenda(struct vendas listaDeVendas[], int quantidadeDeRegistros);
-void vendasDeUmMes(struct vendas listaDeVendas[], int quantidadeDeRegistros);
-void listaVendasDeUmProduto(struct vendas listaDeVendas[], int quantidadeDeRegistros);
-void listaProdutosMaisVendidos(struct vendas listaDeVendas[], int quantidadeDeRegistros);
-
-int fsize(FILE *fp);
-void dataFormatada (int data);
-int ehBissexto(int ano);
-void precioneEnter();
-
-struct produtos{
+typedef struct{
     char nome[50];
     int codigo;
     float preco;
     int estoque;
-};
+}produtos;
 
-struct vendas{
+typedef struct{
     int codigo;
     int quantidade;
     int data;
     int codigoProduto;
     char nomeProduto[50];
     float precoProduto;
-};
+}vendas;
 
-struct configuracoes{
+
+typedef struct{
     int contadorProdutos;
     int contadorVendas;
-};
+}configuracoes;
+
+void cadastrarProduto(produtos listaDeProdutos[], int quantidadeDeRegistros, configuracoes *configuracao);
+void listaProdutos(produtos listaDeProdutos[], int quantidadeDeRegistros);
+void procurarProduto(produtos listaDeProdutos[], int quantidadeDeRegistros);
+int procuraPosicaoValidaProduto(produtos listaDeProdutos[],int quantidadeDeRegistros);
+int procuraPosicaoPeloCodigoDeProduto(int codigoProduto, produtos listaDeProdutos[],int quantidadeDeRegistros);
+void editarProduto(produtos listaDeProdutos[], int quantidadeDeRegistros);
+void excluirProduto(produtos listaDeProdutos[], int quantidadeDeRegistros);
+
+void cadastrarVenda(vendas listaDeVendas[], produtos listaDeProdutos[], int quantidadeDeRegistros, configuracoes *configuracao);
+void listaVendas(vendas listaDeVendas[], int quantidadeDeRegistros);
+void procurarVenda(vendas listaDeVendas[], int quantidadeDeRegistros);
+int procuraPosicaoValidaVenda(vendas listaDeVendas[],int quantidadeDeRegistros);
+int procuraPosicaoPeloCodigoDeVenda(int codigoVenda, vendas listaDeVendas[], int quantidadeDeRegistros);
+void excluirVenda(vendas listaDeVendas[], produtos listaDeProdutos[], int quantidadeDeRegistros);
+
+void vendasDeUmMes(vendas listaDeVendas[], int quantidadeDeRegistros);
+void listaVendasDeUmProduto(vendas listaDeVendas[], int quantidadeDeRegistros);
+void listaProdutosMaisVendidos(vendas listaDeVendas[], int quantidadeDeRegistros);
+
+int opcoes();
+int opcoesModulares();
+int fsize(FILE *fp);
+void dataFormatada (int data);
+int ehBissexto(int ano);
+void precioneEnter();
+
 
 int main(){
-
-    //Declaração das variáveis
+    setlocale(LC_ALL, "Portuguese");
     int quantidadeDeRegistros = 100;
     FILE *arquivoDeProdutos;
     FILE *arquivoDeVendas;
     FILE *arquivoDeConfiguracoes;
-    struct produtos listaDeProdutos[quantidadeDeRegistros];
-    struct vendas listaDeVendas[quantidadeDeRegistros];
-    struct configuracoes configuracao;
 
-    //Abre arquivo de produtos e adiciona no array
+    produtos listaDeProdutos[quantidadeDeRegistros];
+    vendas listaDeVendas[quantidadeDeRegistros];
+    configuracoes configuracao;
+
     if((arquivoDeProdutos = fopen("produtos.txt", "rb+")) == NULL || fsize(arquivoDeProdutos)==0){
         if((arquivoDeProdutos = fopen("produtos.txt", "wb+")) == NULL){
             printf("\nErro ao abrir o arquivo de produtos.\n");
@@ -68,16 +74,15 @@ int main(){
             listaDeProdutos[i].preco = 0;
             strcpy(listaDeProdutos[i].nome,"");
         }
-        fwrite(listaDeProdutos,sizeof(struct produtos), quantidadeDeRegistros, arquivoDeProdutos);
+        fwrite(listaDeProdutos,sizeof(produtos), quantidadeDeRegistros, arquivoDeProdutos);
         fclose(arquivoDeProdutos);
     }
     else{
         fseek(arquivoDeProdutos,0,SEEK_SET);
-        fread(listaDeProdutos, sizeof(struct produtos), quantidadeDeRegistros, arquivoDeProdutos);
+        fread(listaDeProdutos, sizeof(produtos), quantidadeDeRegistros, arquivoDeProdutos);
         fclose(arquivoDeProdutos);
     }
 
-    //Abre arquivo de vendas e adiciona no array
     if((arquivoDeVendas = fopen("vendas.txt", "rb+")) == NULL || fsize(arquivoDeVendas)==0){
         if((arquivoDeVendas = fopen("vendas.txt", "wb+")) == NULL){
             printf("\nErro ao abrir o arquivo de vendas.\n");
@@ -91,34 +96,33 @@ int main(){
             listaDeVendas[i].precoProduto = 0;
             strcpy(listaDeVendas[i].nomeProduto,"");
         }
-        fwrite(listaDeVendas,sizeof(struct vendas), quantidadeDeRegistros, arquivoDeVendas);
+        fwrite(listaDeVendas,sizeof(vendas), quantidadeDeRegistros, arquivoDeVendas);
         fclose(arquivoDeVendas);
     }
     else{
         fseek(arquivoDeVendas,0,SEEK_SET);
-        fread(listaDeVendas, sizeof(struct vendas), quantidadeDeRegistros, arquivoDeVendas);
+        fread(listaDeVendas, sizeof(vendas), quantidadeDeRegistros, arquivoDeVendas);
         fclose(arquivoDeVendas);
     }
 
-    //Abre arquivo de configurações
     if((arquivoDeConfiguracoes = fopen("configuracao.txt", "rb+")) == NULL || fsize(arquivoDeConfiguracoes)==0){
         if((arquivoDeConfiguracoes = fopen("configuracao.txt", "wb+")) == NULL){
-            printf("\nErro ao abrir o arquivo de configuração.\n");
+            printf("\nErro ao abrir o arquivo de configura%c%co.\n", 231, 227);
             return 0;
         }
         configuracao.contadorProdutos = 1;
         configuracao.contadorVendas = 1;
-        fwrite(&configuracao,sizeof(struct configuracoes), 1, arquivoDeConfiguracoes);
+        fwrite(&configuracao,sizeof(configuracoes), 1, arquivoDeConfiguracoes);
         fclose(arquivoDeConfiguracoes);
     }
     else{
         fseek(arquivoDeConfiguracoes,0,SEEK_SET);
-        fread(&configuracao, sizeof(struct configuracoes), 1, arquivoDeConfiguracoes);
+        fread(&configuracao, sizeof(configuracoes), 1, arquivoDeConfiguracoes);
         fclose(arquivoDeConfiguracoes);
     }
     
     while (1){
-        switch (opcoes()){
+        switch (opcoesModulares()){
         
             case 0:
                 return 0;
@@ -178,19 +182,19 @@ int main(){
             printf("\nErro ao abrir o arquivo de produtos.\n");
             return 0;
         }
-        fwrite(listaDeProdutos,sizeof(struct produtos), quantidadeDeRegistros, arquivoDeProdutos);
+        fwrite(listaDeProdutos,sizeof(produtos), quantidadeDeRegistros, arquivoDeProdutos);
         fclose(arquivoDeProdutos);
         if((arquivoDeVendas = fopen("vendas.txt", "wb+")) == NULL){
             printf("\nErro ao abrir o arquivo de vendas.\n");
             return 0;
         }
-        fwrite(listaDeVendas,sizeof(struct vendas), quantidadeDeRegistros, arquivoDeVendas);
+        fwrite(listaDeVendas,sizeof(vendas), quantidadeDeRegistros, arquivoDeVendas);
         fclose(arquivoDeVendas);
         if((arquivoDeConfiguracoes = fopen("configuracao.txt", "wb+")) == NULL){
-            printf("\nErro ao abrir o arquivo de configuração.\n");
+            printf("\nErro ao abrir o arquivo de configura%c%co.\n", 231, 227);
             return 0;
         }
-        fwrite(&configuracao,sizeof(struct configuracoes), 1, arquivoDeConfiguracoes);
+        fwrite(&configuracao,sizeof(configuracoes), 1, arquivoDeConfiguracoes);
         fclose(arquivoDeConfiguracoes);
     }
     
@@ -198,9 +202,9 @@ int main(){
 
 int opcoes(){
     printf("=-=-=-=-=-=-=-=-=-=-=-=-=-= MENU =-=-=-=-=-=-=-=-=-=-=-=-=-=\n");
-    int opicao = -1;
-    while(opicao < 0 || opicao > 13){
-        printf("Digite uma opção!\n");
+    int opcao = -1;
+    while(opcao < 0 || opcao > 13){
+        printf("Digite uma op%c%co!\n", 231, 227);
         printf("(1) Cadastrar um produto\n");
         printf("(2) Listar todos produtos\n");
         printf("(3) Procurar um produto\n");
@@ -210,19 +214,100 @@ int opcoes(){
         printf("(7) Listar todas vendas\n");
         printf("(8) Procurar uma venda\n");
         printf("(9) Excluir venda\n");
-        printf("(10) Vendas realizadas em um mês\n");
+        printf("(10) Vendas realizadas em um m%cs\n", 234);
         printf("(11) Vendas de um produto\n");
         printf("(12) Listar produtos por ordem de mais vendidos\n");
         printf("(0) Fechar sistema\n");
         printf("Escolha: ");
-        scanf("%d",&opicao);
-        if(opicao < 0 || opicao > 13)
-            printf("\n\n\n\n\nOpção invalida, por favor tente novamente\n\n");
+        scanf("%d",&opcao);
+        if(opcao < 0 || opcao > 13)
+            printf("\n\n\n\n\nOp%c%co invalida, por favor tente novamente\n\n", 231, 227);
     }
-    return opicao;
+    return opcao;
 }
 
-void listaProdutos(struct produtos listaDeProdutos[], int quantidadeDeRegistros){
+int opcoesModulares(){
+    printf("=-=-=-=-=-=-=-=-=-=-=-=-=-= MENU =-=-=-=-=-=-=-=-=-=-=-=-=-=\n");
+    int opcao = -1;
+    while(1){
+        printf("Digite uma op%c%co!\n", 231, 227);
+        printf("(1) Opera%c%ces de produto\n", 231, 245);
+        printf("(2) Opera%c%ces de vendas\n", 231, 245);
+        printf("(3) Relat%crios\n", 243);
+        printf("(0) Fechar sistema\n");
+        printf("Escolha: ");
+        scanf("%d",&opcao);
+        if(opcao < 0 || opcao > 4)
+            printf("\n\n\n\n\nOp%c%co inv%clida, por favor tente novamente\n\n", 231, 227, 225);
+        else
+            break;
+    }
+    if(opcao == 1){
+        printf("=-=-=-=-=-=-=-=-=-=-= MENU DE PRODUTOS =-=-=-=-=-=-=-=-=-=-=\n");
+        while (1){
+            printf("(1) Cadastrar um produto\n");
+            printf("(2) Listar todos produtos\n");
+            printf("(3) Procurar um produto\n");
+            printf("(4) Editar produto\n");
+            printf("(5) Excluir produto \n");
+            printf("(0) voltar ao menu principal\n");
+            printf("Escolha: ");
+            scanf("%d",&opcao);
+            if(opcao == 0){
+                opcao = opcoesModulares();
+                return opcao;
+            }
+            if(opcao < 0 || opcao > 5)
+                printf("\n\n\n\n\nOp%c%co inv%clida, por favor tente novamente\n\n", 231, 227, 193);
+            else
+                break;
+        }
+    }
+    else if(opcao == 2){
+        printf("=-=-=-=-=-=-=-=-=-=-=- MENU DE VENDAS -=-=-=-=-=-=-=-=-=-=-=\n");
+        while (1){
+            printf("(1) Realizar uma venda\n");
+            printf("(2) Listar todas vendas\n");
+            printf("(3) Procurar uma venda\n");
+            printf("(4) Excluir venda\n");
+            printf("(0) voltar ao menu principal\n");
+            printf("Escolha: ");
+            scanf("%d",&opcao);
+            if(opcao == 0){
+                opcao = opcoesModulares();
+                return opcao;
+            }
+            if(opcao < 0 || opcao > 4)
+                printf("\n\n\n\n\nOp%c%co inv%clida, por favor tente novamente\n\n", 231, 227, 193);
+            else
+                break;
+        }
+        return opcao + 5;  
+    }
+    else if(opcao == 3){
+        printf("=-=-=-=-=-=-=-=-=-=-= MENU DE RELAT%cRIOS -=-=-=-=-=-=-=-=-=-=\n", 211);
+        while (1){      
+            printf("(1) Vendas realizadas em um m%cs\n", 234);
+            printf("(2) Vendas de um produto\n");
+            printf("(3) Listar produtos por ordem de mais vendidos\n");
+            printf("(0) Voltar ao menu principal\n");
+            printf("Escolha: ");
+            scanf("%d",&opcao);
+            if(opcao == 0){
+                opcao = opcoesModulares();
+                return opcao;
+            }
+            if(opcao < 0 || opcao > 3)
+                printf("\n\n\n\n\nOp%c%co inv%clida, por favor tente novamente\n\n", 231, 227, 193);
+            else
+                break;
+        }
+        return opcao + 9;  
+    }
+    return opcao;
+}
+
+void listaProdutos(produtos listaDeProdutos[], int quantidadeDeRegistros){
     printf("\n=-=-=-=-=-=-=-=-=-=-=-= LISTA DE PRODUTO =-=-=-=-=-=-=-=-=-=-=\n");
     for(int i = 0; i<quantidadeDeRegistros; i++){
         if(listaDeProdutos[i].codigo != 0){
@@ -230,28 +315,28 @@ void listaProdutos(struct produtos listaDeProdutos[], int quantidadeDeRegistros)
                 printf("\n=-=-=-=-=- PRODUTO  0%d -=-=-=-=-=",listaDeProdutos[i].codigo);
             else
                 printf("\n=-=-=-=-=- PRODUTO  %d -=-=-=-=-=",listaDeProdutos[i].codigo);
-            printf("\nCódigo: %d",listaDeProdutos[i].codigo);
+            printf("\nC%cdigo: %d", 243, listaDeProdutos[i].codigo);
             printf("\nNome: %s",listaDeProdutos[i].nome);
-            printf("\nPreço: R$%.2f",listaDeProdutos[i].preco);
+            printf("\nPre%co: R$%.2f", 231, listaDeProdutos[i].preco);
             printf("\n%d em estoque",listaDeProdutos[i].estoque);
-            printf("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n",listaDeProdutos[i].codigo);   
+            printf("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n");   
         }
     }
     precioneEnter();
 }
 
-void cadastrarProduto(struct produtos listaDeProdutos[], int quantidadeDeRegistros, struct configuracoes *configuracao){
+void cadastrarProduto(produtos listaDeProdutos[], int quantidadeDeRegistros, configuracoes *configuracao){
     printf("\n=-=-=-=-=-=-=-=-=-=-= CADASTRO DE PRODUTO =-=-=-=-=-=-=-=-=-=-\n");
     int lugarParaSalvar = procuraPosicaoValidaProduto(listaDeProdutos,quantidadeDeRegistros);
     if(lugarParaSalvar != -1){
         listaDeProdutos[lugarParaSalvar].codigo = configuracao->contadorProdutos;
         configuracao->contadorProdutos++;
-        printf("O registro terá como código %d!\n", listaDeProdutos[lugarParaSalvar].codigo);
+        printf("O registro ter%c como c%cdigo %d!\n", 225, 243, listaDeProdutos[lugarParaSalvar].codigo);
         printf("Digite o nome do produto: ");
         setbuf(stdin, 0);
         fgets(listaDeProdutos[lugarParaSalvar].nome,49,stdin);
         listaDeProdutos[lugarParaSalvar].nome[strcspn(listaDeProdutos[lugarParaSalvar].nome, "\n")] = 0;
-        printf("Digite o preço do produto: ");
+        printf("Digite o pre%co do produto: ", 231);
         scanf("%f",&listaDeProdutos[lugarParaSalvar].preco);
         printf("Digite a quantidade em estoque: ");
         scanf("%d",&listaDeProdutos[lugarParaSalvar].estoque);
@@ -260,45 +345,45 @@ void cadastrarProduto(struct produtos listaDeProdutos[], int quantidadeDeRegistr
             printf("\n=-=-=-=-=- PRODUTO  0%d -=-=-=-=-=",listaDeProdutos[lugarParaSalvar].codigo);
         else
             printf("\n=-=-=-=-=- PRODUTO  %d -=-=-=-=-=",listaDeProdutos[lugarParaSalvar].codigo);
-        printf("\nCódigo: %d",listaDeProdutos[lugarParaSalvar].codigo);
+        printf("\nC%cdigo: %d", 243, listaDeProdutos[lugarParaSalvar].codigo);
         printf("\nNome: %s",listaDeProdutos[lugarParaSalvar].nome);
-        printf("\nPreço: R$%.2f",listaDeProdutos[lugarParaSalvar].preco);
+        printf("\nPre%co: R$%.2f", 231, listaDeProdutos[lugarParaSalvar].preco);
         printf("\n%d em estoque",listaDeProdutos[lugarParaSalvar].estoque);
-        printf("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n",listaDeProdutos[lugarParaSalvar].codigo); 
+        printf("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n"); 
         printf("\nProduto salvo com sucesso!\n");
     }
     else{
-        printf("\n\nNão há espaço para novos produtos no estoque!\n");
+        printf("\n\nN%co h%c espaço para novos produtos no estoque!\n", 227, 225);
     }
     precioneEnter();
 }
 
-int procuraPosicaoValidaProduto(struct produtos listaDeProdutos[],int quantidadeDeRegistros){
+int procuraPosicaoValidaProduto(produtos listaDeProdutos[],int quantidadeDeRegistros){
     for(int i = 0; i < quantidadeDeRegistros; i++)
         if(listaDeProdutos[i].codigo == 0)
             return i;
     return -1;
 }
 
-int procuraPosicaoPeloCodigoDeProduto(int codigoProduto, struct produtos listaDeProdutos[],int quantidadeDeRegistros){
+int procuraPosicaoPeloCodigoDeProduto(int codigoProduto, produtos listaDeProdutos[],int quantidadeDeRegistros){
     for(int i = 0; i < quantidadeDeRegistros; i++)
         if(codigoProduto == listaDeProdutos[i].codigo)
             return i;
     return -1;
 }
 
-void excluirProduto(struct produtos listaDeProdutos[], int quantidadeDeRegistros){
+void excluirProduto(produtos listaDeProdutos[], int quantidadeDeRegistros){
     printf("\n=-=-=-=-=-=-=-=-=-=-=-= EXCLUIR PRODUTO =-=-=-=-=-=-=-=-=-=-=-\n");
     int posicaoExcluida;
     while (1){
-        printf("Digite o código que deseja remover (0 para cancelar operação): ");
+        printf("Digite o c%cdigo que deseja remover (0 para cancelar opera%c%co): ", 243, 231, 227);
         scanf("%d",&posicaoExcluida);
         if(posicaoExcluida == 0)
             break;
         posicaoExcluida = procuraPosicaoPeloCodigoDeProduto(posicaoExcluida,listaDeProdutos,quantidadeDeRegistros);
         if(posicaoExcluida != -1){
             int certeza;
-            printf("\nVocê tem certeza que deseja excluir o item %s?\n1 para confirmar ou 0 para cancelar: ",listaDeProdutos[posicaoExcluida].nome);
+            printf("\nVoc%c tem certeza que deseja excluir o item %s?\n1 para confirmar ou 0 para cancelar: ", 234, listaDeProdutos[posicaoExcluida].nome);
             scanf("%d",&certeza);
             if(certeza==1){
                 listaDeProdutos[posicaoExcluida].codigo = 0;
@@ -309,45 +394,49 @@ void excluirProduto(struct produtos listaDeProdutos[], int quantidadeDeRegistros
                 precioneEnter();
                 break;
             }
-            printf("\nOperação cancelada!\n");
+            printf("\nOpera%c%co cancelada!\n", 231, 227);
             precioneEnter();
             break;
         }
-        printf("\nCódigo de produto inválido ou não encontrado\n\n"); 
+        printf("\nC%cdigo de produto inv%clido ou n%co encontrado\n\n", 243, 225, 227); 
     }
 }
 
-void editarProduto(struct produtos listaDeProdutos[], int quantidadeDeRegistros){
+void editarProduto(produtos listaDeProdutos[], int quantidadeDeRegistros){
     printf("\n=-=-=-=-=-=-=-=-=-=-=-=- EDITAR PRODUTO -=-=-=-=-=-=-=-=-=-=-=\n");
     int posicaoEditada;
     while (1){
-        printf("Digite o código que deseja alterar (0 para cancelar operação): ");
+        printf("Digite o c%cdigo que deseja alterar (0 para cancelar opera%c%co): ", 243, 231, 227);
         scanf("%d",&posicaoEditada);
         if(posicaoEditada == 0)
             break;
         posicaoEditada = procuraPosicaoPeloCodigoDeProduto(posicaoEditada,listaDeProdutos,quantidadeDeRegistros);
         if(posicaoEditada != -1){
+            produtos produtoAux;
+            int codigo = listaDeProdutos[posicaoEditada].codigo;
             printf("Nome -> de %s para: ",listaDeProdutos[posicaoEditada].nome);
             setbuf(stdin, 0);
-            fgets(listaDeProdutos[posicaoEditada].nome,49,stdin);
-            listaDeProdutos[posicaoEditada].nome[strcspn(listaDeProdutos[posicaoEditada].nome, "\n")] = 0;
-            printf("Preço -> de R$%.2f para: R$",listaDeProdutos[posicaoEditada].preco);
-            scanf("%f",&listaDeProdutos[posicaoEditada].preco);
+            fgets(produtoAux.nome,49,stdin);
+            produtoAux.nome[strcspn(produtoAux.nome, "\n")] = 0;
+            printf("Pre%co -> de R$%.2f para: R$",231,listaDeProdutos[posicaoEditada].preco);
+            scanf("%f",&produtoAux.preco);
             printf("Quantidade em estoque -> de %d para: ",listaDeProdutos[posicaoEditada].estoque);
-            scanf("%d",&listaDeProdutos[posicaoEditada].estoque);
+            scanf("%d",&produtoAux.estoque);
+            listaDeProdutos[posicaoEditada] = produtoAux;
+            listaDeProdutos[posicaoEditada].codigo = codigo;
             printf("\nProduto editado com sucesso!\n");
             precioneEnter();
             break;
         }
-        printf("\nCódigo de produto inválido ou não encontrado\n\n"); 
+        printf("\nC%cdigo de produto inv%clido ou n%co encontrado\n\n", 243, 225, 227); 
     }
 }
 
-void procurarProduto(struct produtos listaDeProdutos[], int quantidadeDeRegistros){
+void procurarProduto(produtos listaDeProdutos[], int quantidadeDeRegistros){
     printf("\n=-=-=-=-=-=-=-=-=-=-=-= PROCURAR PRODUTO =-=-=-=-=-=-=-=-=-=-=\n");
     int posicaoDeBusca;
     while (1){
-        printf("Digite o código que deseja procurar (0 para cancelar operação): ");
+        printf("Digite o c%cdigo que deseja procurar (0 para cancelar opera%c%co): ", 243, 231, 227);
         scanf("%d",&posicaoDeBusca);
         if(posicaoDeBusca == 0)
             break;
@@ -357,19 +446,19 @@ void procurarProduto(struct produtos listaDeProdutos[], int quantidadeDeRegistro
                 printf("\n=-=-=-=-=- PRODUTO  0%d -=-=-=-=-=",listaDeProdutos[posicaoDeBusca].codigo);
             else
                 printf("\n=-=-=-=-=- PRODUTO  %d -=-=-=-=-=",listaDeProdutos[posicaoDeBusca].codigo);
-            printf("\nCódigo: %d",listaDeProdutos[posicaoDeBusca].codigo);
+            printf("\nC%cdigo: %d", 243, listaDeProdutos[posicaoDeBusca].codigo);
             printf("\nNome: %s",listaDeProdutos[posicaoDeBusca].nome);
-            printf("\nPreço: R$%.2f",listaDeProdutos[posicaoDeBusca].preco);
+            printf("\nPre%co: R$%.2f", 231, listaDeProdutos[posicaoDeBusca].preco);
             printf("\n%d em estoque",listaDeProdutos[posicaoDeBusca].estoque);
-            printf("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n",listaDeProdutos[posicaoDeBusca].codigo);  
+            printf("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n");  
             precioneEnter();
             break;
         }
-        printf("\nCódigo de produto inválido ou não encontrado\n\n"); 
+        printf("\nC%cdigo de produto inv%clido ou n%co encontrado\n\n", 243, 225, 227); 
     }
 }
 
-void listaVendas(struct vendas listaDeVendas[], int quantidadeDeRegistros){
+void listaVendas(vendas listaDeVendas[], int quantidadeDeRegistros){
     printf("\n=-=-=-=-=-=-=-=-=-=-= LISTA DE VENDAS =-=-=-=-=-=-=-=-=-=-=-\n");
     for(int i = 0; i<quantidadeDeRegistros; i++){
         if(listaDeVendas[i].codigo != 0){
@@ -379,7 +468,7 @@ void listaVendas(struct vendas listaDeVendas[], int quantidadeDeRegistros){
                 printf("\n=-=-=-=-=-= VENDA  %d =-=-=-=-=-=\n", listaDeVendas[i].codigo);
             printf("Compra realizada em ");
             dataFormatada(listaDeVendas[i].data);
-            printf("\nCódigo do produto vendido: %d",listaDeVendas[i].codigoProduto);
+            printf("\nC%cdigo do produto vendido: %d", 243, listaDeVendas[i].codigoProduto);
             printf("\n%d x %s",listaDeVendas[i].quantidade,listaDeVendas[i].nomeProduto);
             printf("\nTotal: R$%.2f",listaDeVendas[i].precoProduto*listaDeVendas[i].quantidade);
             printf("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n");
@@ -388,66 +477,66 @@ void listaVendas(struct vendas listaDeVendas[], int quantidadeDeRegistros){
     precioneEnter();
 }
 
-int procuraPosicaoValidaVenda(struct vendas listaDeVendas[],int quantidadeDeRegistros){
+int procuraPosicaoValidaVenda(vendas listaDeVendas[],int quantidadeDeRegistros){
     for(int i = 0; i < quantidadeDeRegistros; i++)
         if(listaDeVendas[i].codigo == 0)
             return i;
     return -1;
 }
 
-int procuraPosicaoPeloCodigoDeVenda(int codigoVenda, struct vendas listaDeVendas[], int quantidadeDeRegistros){
+int procuraPosicaoPeloCodigoDeVenda(int codigoVenda, vendas listaDeVendas[], int quantidadeDeRegistros){
     for(int i = 0; i < quantidadeDeRegistros; i++)
         if(listaDeVendas[i].codigo == codigoVenda)
             return i;
     return -1;
 }
 
-void cadastrarVenda(struct vendas listaDeVendas[], struct produtos listaDeProdutos[], int quantidadeDeRegistros, struct configuracoes *configuracao){
+void cadastrarVenda(vendas listaDeVendas[], produtos listaDeProdutos[], int quantidadeDeRegistros, configuracoes *configuracao){
     printf("\n-=-=-=-=-=-=-=-=-=-=-= CADASTRO DE VENDA =-=-=-=-=-=-=-=-=-=-=\n");
     int lugarParaSalvar = procuraPosicaoValidaVenda(listaDeVendas,quantidadeDeRegistros);
     if(lugarParaSalvar != -1){
         int localDoProduto = -1;
         while (localDoProduto == -1){
-            printf("Código do produto que deseja adicionar a venda (0 para cancelar operação): ");
+            printf("C%cdigo do produto que deseja adicionar a venda (0 para cancelar opera%c%co): ", 243, 231, 227);
             scanf("%d",&localDoProduto);
             if (localDoProduto == 0)
                 return;
             localDoProduto = procuraPosicaoPeloCodigoDeProduto(localDoProduto,listaDeProdutos,quantidadeDeRegistros);
             if(localDoProduto == -1)
-                printf("\nCódigo de produto inválido ou não encontrado\n\n");
+                printf("\nC%cdigo de produto inv%clido ou n%co encontrado\n\n", 243, 225, 227);
         }
 
         int quantidadeEstoque = -1;
         while (quantidadeEstoque == -1){
             printf("\nO produto %s de id %d possui %d unidades em estoque!\n", listaDeProdutos[localDoProduto].nome, listaDeProdutos[localDoProduto].codigo, listaDeProdutos[localDoProduto].estoque);
-            printf("\nQuantas unidades deseja adicionar a venda (0 para cancelar operação): ");
+            printf("\nQuantas unidades deseja adicionar a venda (0 para cancelar opera%c%co): ", 231, 227);
             scanf("%d",&quantidadeEstoque);
             if(quantidadeEstoque == 0)
                 return;
             else if (quantidadeEstoque < 0 || quantidadeEstoque > listaDeProdutos[localDoProduto].estoque){
-                printf("\nImpossível retirar do estoque esse valor, por favor digite um número entre 1 e %d\n", listaDeProdutos[localDoProduto].estoque);
+                printf("\nImposs%cvel retirar do estoque esse valor, por favor digite um n%cmero entre 1 e %d\n", 237, 250, listaDeProdutos[localDoProduto].estoque);
                 quantidadeEstoque = -1;
             }
         }
 
         int ano = -1;
         while (ano < 0){
-            printf("\nDigite o ano da venda (0 para cancelar operação): ");
+            printf("\nDigite o ano da venda (0 para cancelar opera%c%co): ", 231, 227);
             scanf("%d", &ano);
             if(ano == 0)
                 return;
             else if(ano < 0)
-                printf("\nNosso sistema não trata anos antes de Cristo, por favor insira um ano superior a 0\n");
+                printf("\nNosso sistema n%co trata anos antes de Cristo, por favor insira um ano superior a 0\n", 227);
         }
 
         int mes = -1;
         while (mes == -1){
-            printf("\nDigite o mês da venda (0 para cancelar operação): ");
+            printf("\nDigite o m%cs da venda (0 para cancelar opera%c%co): ", 234, 231, 227);
             scanf("%d", &mes);
             if(mes == 0)
                 return;
             else if(mes < 1 || mes > 12){
-                printf("\nMês inválido, por favor digite um valor entre 1 e 12\n");
+                printf("\nM%cs inv%clido, por favor digite um valor entre 1 e 12\n", 234, 225);
                 mes = -1;
             }
         }
@@ -459,12 +548,12 @@ void cadastrarVenda(struct vendas listaDeVendas[], struct produtos listaDeProdut
 
         int dia = -1;
         while (dia == -1){
-            printf("\nDigite o dia da venda (0 para cancelar operação): ");
+            printf("\nDigite o dia da venda (0 para cancelar opera%c%co): ", 231, 227);
             scanf("%d",&dia);
             if(dia == 0)
                 return;
             else if(dia < 0 || dia > quantidadeDeDiasPorMes[mes-1]){
-                printf("\nDia inválido, por favor digite um valor entre 1 e %d\n",quantidadeDeDiasPorMes[mes-1]);
+                printf("\nDia inv%clido, por favor digite um valor entre 1 e %d\n", 225, quantidadeDeDiasPorMes[mes-1]);
                 dia = -1;
             }
         }
@@ -487,22 +576,22 @@ void cadastrarVenda(struct vendas listaDeVendas[], struct produtos listaDeProdut
             printf("\n=-=-=-=-=-= VENDA  %d =-=-=-=-=-=\n", listaDeVendas[lugarParaSalvar].codigo);
         printf("Compra realizada em ");
         dataFormatada(listaDeVendas[lugarParaSalvar].data);
-        printf("\nCódigo do produto vendido: %d",listaDeVendas[lugarParaSalvar].codigoProduto);
+        printf("\nC%cdigo do produto vendido: %d", 243, listaDeVendas[lugarParaSalvar].codigoProduto);
         printf("\n%d x %s",listaDeVendas[lugarParaSalvar].quantidade,listaDeVendas[lugarParaSalvar].nomeProduto);
         printf("\nTotal: R$%.2f",listaDeVendas[lugarParaSalvar].precoProduto*listaDeVendas[lugarParaSalvar].quantidade);
-        printf("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n", listaDeVendas[lugarParaSalvar].codigo);
+        printf("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n");
     }
     else{
-        printf("\n\nNão há espaço para novas vendas!\n\n");
+        printf("\n\nN%co h%c espa%co para novas vendas!\n\n", 227, 225, 231);
     }
     precioneEnter();
 }
 
-void procurarVenda(struct vendas listaDeVendas[], int quantidadeDeRegistros){
+void procurarVenda(vendas listaDeVendas[], int quantidadeDeRegistros){
     printf("\n=-=-=-=-=-=-=-=-=-=-=-=- PROCURAR VENDA -=-=-=-=-=-=-=-=-=-=-=\n");
     int posicaoDeBusca;
     while (1){
-        printf("Digite o código que deseja procurar (0 para cancelar operação): ");
+        printf("Digite o c%cdigo que deseja procurar (0 para cancelar opera%c%co): ", 243, 231, 227);
         scanf("%d",&posicaoDeBusca);
         if(posicaoDeBusca == 0)
             break;
@@ -514,33 +603,33 @@ void procurarVenda(struct vendas listaDeVendas[], int quantidadeDeRegistros){
                 printf("\n=-=-=-=-=-= VENDA  %d =-=-=-=-=-=",listaDeVendas[posicaoDeBusca].codigo);
             printf("Venda realizada em ");
             dataFormatada(listaDeVendas[posicaoDeBusca].data);
-            printf("\nCódigo do produto vendido: %d",listaDeVendas[posicaoDeBusca].codigoProduto);
+            printf("\nC%cdigo do produto vendido: %d", 243, listaDeVendas[posicaoDeBusca].codigoProduto);
             printf("\n%d x %s",listaDeVendas[posicaoDeBusca].quantidade,listaDeVendas[posicaoDeBusca].nomeProduto);
             printf("\nTotal: R$%.2f",listaDeVendas[posicaoDeBusca].precoProduto*listaDeVendas[posicaoDeBusca].quantidade);
-            printf("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n", listaDeVendas[posicaoDeBusca].codigo);
+            printf("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n");
             precioneEnter();
             break;
         }
-        printf("\nCódigo de venda inválido ou não encontrado\n\n"); 
+        printf("\nC%cdigo de venda inv%clido ou n%co encontrado\n\n", 243, 225, 227); 
     }
 }
 
-void excluirVenda(struct vendas listaDeVendas[], struct produtos listaDeProdutos[], int quantidadeDeRegistros){
+void excluirVenda(vendas listaDeVendas[], produtos listaDeProdutos[], int quantidadeDeRegistros){
     printf("\n=-=-=-=-=-=-=-=-=-=-=-= EXCLUIR  VENDA =-=-=-=-=-=-=-=-=-=-=\n");
     int posicaoDeBusca;
     while (1){
-        printf("Digite o código que deseja excluir (0 para cancelar operação): ");
+        printf("Digite o c%cdigo que deseja excluir (0 para cancelar opera%c%co): ", 243, 231, 227);
         scanf("%d",&posicaoDeBusca);
         if(posicaoDeBusca == 0)
             break;
         posicaoDeBusca = procuraPosicaoPeloCodigoDeVenda(posicaoDeBusca,listaDeVendas,quantidadeDeRegistros);
         if(posicaoDeBusca != -1){
             int certeza;
-            printf("\nVocê tem certeza que deseja excluir a venda %d que possue %d %s com o valor de R$%.2f?\n1 para confirmar ou 0 para cancelar: ",listaDeVendas[posicaoDeBusca].codigo,listaDeVendas[posicaoDeBusca].quantidade,listaDeVendas[posicaoDeBusca].nomeProduto, listaDeVendas[posicaoDeBusca].quantidade*listaDeVendas[posicaoDeBusca].precoProduto);
+            printf("\nVoc%c tem certeza que deseja excluir a venda %d que possue %d %s com o valor de R$%.2f?\n1 para confirmar ou 0 para cancelar: ", 234, listaDeVendas[posicaoDeBusca].codigo,listaDeVendas[posicaoDeBusca].quantidade,listaDeVendas[posicaoDeBusca].nomeProduto, listaDeVendas[posicaoDeBusca].quantidade*listaDeVendas[posicaoDeBusca].precoProduto);
             scanf("%d",&certeza);
             if(certeza==1){
                 int produtosDevolvidos;
-                printf("\nOs produtos foram devolvidos?\n1 para sim ou 0 para não: ");
+                printf("\nOs produtos foram devolvidos?\n1 para sim ou 0 para n%co: ",227);
                 scanf("%d",&produtosDevolvidos);
                 if(produtosDevolvidos == 1){
                     int localDoProduto = procuraPosicaoPeloCodigoDeProduto(listaDeVendas[posicaoDeBusca].codigoProduto,listaDeProdutos,quantidadeDeRegistros);
@@ -556,21 +645,21 @@ void excluirVenda(struct vendas listaDeVendas[], struct produtos listaDeProdutos
 
 
 
-                printf("\nVenda excluida com sucesso!\n");
+                printf("\nVenda exclu%cda com sucesso!\n",237);
                 precioneEnter();
                 break;
             }
-            printf("\nOperação cancelada!\n");
+            printf("\nOpera%c%co cancelada!\n",231, 227);
             precioneEnter();
             break;
         }
-        printf("\nCódigo de venda inválido ou não encontrado\n\n"); 
+        printf("\nC%cdigo de venda inv%clido ou n%co encontrado\n\n", 243, 225,227); 
     }
 }
 
-void listaVendasDeUmProduto(struct vendas listaDeVendas[], int quantidadeDeRegistros){
+void listaVendasDeUmProduto(vendas listaDeVendas[], int quantidadeDeRegistros){
     printf("\n=-=-=-=-=-=-=-=-=-=- VENDAS DE UM ITEM -=-=-=-=-=-=-=-=-=-=-\n");
-    printf("Digite o código do item que deseja procurar (0 para cancelar operação): ");
+    printf("Digite o c%cdigo do item que deseja procurar (0 para cancelar opera%c%co): ",243 ,231, 227);
     int codigoProduto;
     scanf("%d",&codigoProduto);
     if(codigoProduto == 0)
@@ -586,7 +675,7 @@ void listaVendasDeUmProduto(struct vendas listaDeVendas[], int quantidadeDeRegis
                 printf("\n=-=-=-=-=-= VENDA  %d =-=-=-=-=-=\n", listaDeVendas[i].codigo);
             printf("Compra realizada em ");
             dataFormatada(listaDeVendas[i].data);
-            printf("\nCódigo do produto vendido: %d",listaDeVendas[i].codigoProduto);
+            printf("\nC%cdigo do produto vendido: %d",243,listaDeVendas[i].codigoProduto);
             printf("\n%d x %s",listaDeVendas[i].quantidade,listaDeVendas[i].nomeProduto);
             totalDeItens += listaDeVendas[i].quantidade;
             strcpy(nomeProduto,listaDeVendas[i].nomeProduto);
@@ -596,35 +685,36 @@ void listaVendasDeUmProduto(struct vendas listaDeVendas[], int quantidadeDeRegis
         }
     }
     if(totalDeItens == 0)
-        printf("\nNão há vendas cadastradas com esse item!");
-    else
+        printf("\nN%co h%c vendas cadastradas com esse item!\n", 227, 225);
+    else{
         printf("\n=-=-=-=- SOMA DAS VENDAS =-=-=-=-=\n");
         printf("\n%d x %s",totalDeItens,nomeProduto);
         printf("\nTotal: R$%.2f",valorTotal);
         printf("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n");
+    }
 
     precioneEnter();
 }
 
-void vendasDeUmMes(struct vendas listaDeVendas[], int quantidadeDeRegistros){
+void vendasDeUmMes(vendas listaDeVendas[], int quantidadeDeRegistros){
     int ano = -1;
         while (ano < 0){
-            printf("\nDigite o ano da venda (0 para cancelar operação): ");
+            printf("\nDigite o ano da venda (0 para cancelar opera%c%co): ",231, 227);
             scanf("%d", &ano);
             if(ano == 0)
                 return;
             else if(ano < 0)
-                printf("\nNosso sistema não trata anos antes de Cristo, por favor insira um ano superior a 0\n");
+                printf("\nNosso sistema n%co trata anos antes de Cristo, por favor insira um ano superior a 0\n",227);
         }
 
         int mes = -1;
         while (mes == -1){
-            printf("\nDigite o mês da venda (0 para cancelar operação): ");
+            printf("\nDigite o m%cs da venda (0 para cancelar opera%c%co): ",234, 231, 227);
             scanf("%d", &mes);
             if(mes == 0)
                 return;
             else if(mes < 1 || mes > 12){
-                printf("\nMês inválido, por favor digite um valor entre 1 e 12\n");
+                printf("\nM%cs inv%clido, por favor digite um valor entre 1 e 12\n",234,225);
                 mes = -1;
             }
         }
@@ -641,7 +731,7 @@ void vendasDeUmMes(struct vendas listaDeVendas[], int quantidadeDeRegistros){
                     printf("\n=-=-=-=-=-= VENDA  %d =-=-=-=-=-=\n", listaDeVendas[i].codigo);
                 printf("Compra realizada em ");
                 dataFormatada(listaDeVendas[i].data);
-                printf("\nCódigo do produto vendido: %d",listaDeVendas[i].codigoProduto);
+                printf("\nC%cdigo do produto vendido: %d", 243, listaDeVendas[i].codigoProduto);
                 printf("\n%d x %s",listaDeVendas[i].quantidade,listaDeVendas[i].nomeProduto);
                 printf("\nTotal: R$%.2f",listaDeVendas[i].precoProduto*listaDeVendas[i].quantidade);
                 valorTotal += listaDeVendas[i].precoProduto*listaDeVendas[i].quantidade;
@@ -649,14 +739,14 @@ void vendasDeUmMes(struct vendas listaDeVendas[], int quantidadeDeRegistros){
             }
         }
         printf("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n");
-        printf("\nVALOR DAS VENDAS NO MÊS %d DO ANO DE %d: R$%.2f\n",mes,ano,valorTotal);
+        printf("\nVALOR DAS VENDAS NO M%cS %d DO ANO DE %d: R$%.2f\n",202,mes,ano,valorTotal);
         printf("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n");
 
         precioneEnter();
 }
 
-void listaProdutosMaisVendidos(struct vendas listaDeVendas[], int quantidadeDeRegistros){
-    struct vendas listaDeVendasAux[quantidadeDeRegistros];
+void listaProdutosMaisVendidos(vendas listaDeVendas[], int quantidadeDeRegistros){
+    vendas listaDeVendasAux[quantidadeDeRegistros];
     for(int i = 0; i < quantidadeDeRegistros; i++){
         listaDeVendasAux[i].codigo = 0;
         listaDeVendasAux[i].data = 0;
@@ -678,25 +768,22 @@ void listaProdutosMaisVendidos(struct vendas listaDeVendas[], int quantidadeDeRe
     for(int i = 0; i < quantidadeDeRegistros; i++){
         for(int j = 0; j < quantidadeDeRegistros; j++){
             if(listaDeVendasAux[i].quantidade < listaDeVendasAux[j].quantidade){
-                printf("\n%d = %d -> %d\n",i, listaDeVendasAux[i].quantidade,listaDeVendasAux[j].quantidade);
-                struct vendas vendaAux = listaDeVendasAux[i];
+                vendas vendaAux = listaDeVendasAux[i];
                 listaDeVendasAux[i] = listaDeVendasAux[j];
                 listaDeVendasAux[j] = vendaAux;
-                printf("%d = %d -> %d\n",i, listaDeVendasAux[i].quantidade,listaDeVendasAux[j].quantidade);
-
             }
         }
     }
     for(int i = quantidadeDeRegistros - 1; i >= 0; i--){
         if(listaDeVendasAux[i].codigoProduto != 0 && listaDeVendasAux[i].codigo != 0){
             if((quantidadeDeRegistros - i) < 10)
-                printf("\n=-=-=- 0%dº MAIS VENDIDO -=-=-=\n", quantidadeDeRegistros - i);
+                printf("\n=-=-=- 0%d%c MAIS VENDIDO -=-=-=\n", quantidadeDeRegistros - i, 186);
             else
-                printf("\n=-=-=- %dº MAIS VENDIDO -=-=-=\n", quantidadeDeRegistros - i);
-            printf("\nCódigo do produto vendido: %d",listaDeVendasAux[i].codigoProduto);
+                printf("\n=-=-=- %d%c MAIS VENDIDO -=-=-=\n", quantidadeDeRegistros - i, 186);
+            printf("\nC%cdigo do produto vendido: %d", 243, listaDeVendasAux[i].codigoProduto);
             printf("\n%d x %s",listaDeVendasAux[i].quantidade,listaDeVendasAux[i].nomeProduto);
             printf("\nTotal: R$%.2f",listaDeVendasAux[i].precoProduto*listaDeVendasAux[i].quantidade);
-            printf("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n", i);
+            printf("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n");
 
         }
     }
