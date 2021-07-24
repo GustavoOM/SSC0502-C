@@ -1,3 +1,27 @@
+/**
+======================================================================
+|               Olá avaliador, espero que esteja bem                 |
+======================================================================
+| Responsável: Gustavo de Oliveira Martins NºUSP:12625531 24/07/2021 |
+|                                                                    |
+| No runcodes estou mandando só o arquivo .c mas o diretório comple- |
+| to você pode encontra em meu Github, na seguinte url:              |
+| https://github.com/GustavoOM/SSC0502-C/tree/master/Projeto%20Final |
+| Pode ser que alguns caracteres não apareçam corretamente, pois co- |
+| mo eu estava no linux não consegui testar muito bem para outro     |
+| sistema.                                                           |
+| Os árquivos texto são criados automáticamente, mas já deixei al-   |
+| guns produtos e vendas cadastrados para facilitar a validação das  |
+| funcionalidades. Caso queira zerar o banco é só apagar os arquivos |
+| Qualquer dúvida estou a disposição e proto à responder no email:   |
+| gustavo_martins@usp.br, gostei muito da disciplina e foi muito     |
+| gratificante ter cursado e aprendido tanto.                        |
+|                                                                    |
+| Obrigado desde já pela avaliação!                                  |
+======================================================================
+*/
+
+
 #include <stdio.h>
 #include <string.h>
 #include <locale.h>
